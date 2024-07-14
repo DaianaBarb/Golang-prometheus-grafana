@@ -8,8 +8,8 @@ services:
             - mynetwork
    prometheus:
          image: prom/prometheus
-         # volumes:
-         #    - ./prometheus/:/etc/prometheus/
+         volumes:
+            - ./prometheus/:/etc/prometheus/
          command:
             - '--config.file=/etc/prometheus/prometheus.yml'
             - '--storage.tsdb.path=/prometheus'
