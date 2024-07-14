@@ -46,8 +46,8 @@ var responseStatus = prometheus.NewCounterVec(
 func init() {
 
 	prometheus.MustRegister(userStatus)
-	// prometheus.MustRegister(totalRequests)
-	// prometheus.MustRegister(responseStatus)
+	prometheus.MustRegister(totalRequests)
+	prometheus.MustRegister(responseStatus)
 }
 
 type MyRequest struct {
@@ -59,16 +59,16 @@ func server(w http.ResponseWriter, r *http.Request) {
 	var user string
 	defer func() {
 		userStatus.WithLabelValues(user, status).Inc()
-		// responseStatus.WithLabelValues(status).Inc()
-		// totalRequests.WithLabelValues("/").Inc()
+		responseStatus.WithLabelValues(status).Inc()
+		totalRequests.WithLabelValues("/").Inc()
 	}()
 	var mr MyRequest
 	json.NewDecoder(r.Body).Decode(&mr)
 	// rand para simular status 400 tbm
 	if rand.Float32() > 0.8 {
-		status = "4xx"
+		status = "400"
 	} else {
-		status = "2xx"
+		status = "200"
 	}
 	user = mr.User
 	// log simples para a aplicação
