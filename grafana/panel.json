@@ -70,7 +70,22 @@
             "interval": "",
             "legendFormat": "{{status}}  {{user}}",
             "refId": "A"
+          },
+          {
+            "exemplar": true,
+            "expr": "response_status",
+            "interval": "",
+            "legendFormat": "{{status}}",
+            "refId": "B"
+          },
+          {
+            "exemplar": true,
+            "expr": "http_requests_total",
+            "interval": "",
+            "legendFormat": "Requests total",
+            "refId": "C"
           }
+        
         ],
         "timeFrom": null,
         "timeShift": null,
