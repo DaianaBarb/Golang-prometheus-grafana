@@ -89,7 +89,7 @@ func producer() {
 	}
 }
 func main() {
-	//	router := mux.NewRouter()
+
 	go producer()
 	http.Handle("/metrics", promhttp.Handler())
 	//router.HandleFunc("/serv", server).Methods("POST")
@@ -97,12 +97,5 @@ func main() {
 	fmt.Println("server on port 8080")
 	fmt.Println("----acesse--v1.1----")
 	http.ListenAndServe(":8080", nil)
-
-	//router.HandleFunc("/serv", func(w http.ResponseWriter, r *http.Request) {
-
-	// 	w.Write([]byte(fmt.Sprintf("sucess |  %s", time.Now())))
-	// }).Methods("GET")
-
-	//http.ListenAndServe(":8080", router)
 
 }
