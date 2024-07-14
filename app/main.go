@@ -68,7 +68,7 @@ func server(w http.ResponseWriter, r *http.Request) {
 	if rand.Float32() > 0.8 {
 		status = "400"
 	} else {
-		status = "200"
+		status = "500"
 	}
 	user = mr.User
 	// log simples para a aplicação
