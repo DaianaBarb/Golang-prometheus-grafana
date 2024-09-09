@@ -24,7 +24,14 @@ var userStatus = prometheus.NewCounterVec(
 	[]string{"user", "status"},
 )
 
+var requestDuration = prometheus.NewHistogramVec(prometheus.HistogramOpts{
+	Name:        "http_server_request_duration_seconds_sum",
+	Help:        "Histogram of response time for handler in seconds",
+	Buckets:     []float64{.005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10},
+}, []string{"route", "method", "status_code"})
+
 // adicionando metricas de total de requests
+
 var totalRequests = prometheus.NewCounterVec(
 	prometheus.CounterOpts{
 		Name: "http_requests_total",
@@ -48,6 +55,8 @@ func init() {
 	prometheus.MustRegister(userStatus)
 	prometheus.MustRegister(totalRequests)
 	prometheus.MustRegister(responseStatus)
+	prometheus.MustRegister(requestDuration)
+
 }
 
 type MyRequest struct {
@@ -57,10 +66,18 @@ type MyRequest struct {
 func server(w http.ResponseWriter, r *http.Request) {
 	var status string
 	var user string
+	start := time.Now()
+	duration := time.Since(start)
 	defer func() {
 		userStatus.WithLabelValues(user, status).Inc()
 		responseStatus.WithLabelValues(status).Inc()
-		totalRequests.WithLabelValues("/").Inc()
+		// timer := prometheus.NewTimer(requestDuration.WithLabelValues(r.URL.Path))
+
+		// defer timer.ObserveDuration()
+		//requestDuration.WithLabelValues(r.URL.Path, "POST", status).Observe(duration.Seconds())
+
+		totalRequests.WithLabelValues(r.URL.Path).Inc()
+
 	}()
 	var mr MyRequest
 	json.NewDecoder(r.Body).Decode(&mr)
@@ -72,6 +89,7 @@ func server(w http.ResponseWriter, r *http.Request) {
 	}
 	user = mr.User
 	// log simples para a aplicação
+	requestDuration.WithLabelValues(r.URL.Path, "POST", status).Observe(duration.Seconds())
 	log.Println(user, status)
 	w.Write([]byte(status))
 }
@@ -83,7 +101,7 @@ func producer() {
 			User: userPool[rand.IntN(len(userPool))],
 		})
 		requestBody := bytes.NewBuffer(postBody)
-		http.Post("http://localhost:8080", "application/json", requestBody)
+		http.Post("http://localhost:8080/", "application/json", requestBody)
 		//fmt.Println("request")
 		time.Sleep(time.Second * 2)
 	}
